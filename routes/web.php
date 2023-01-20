@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+// use App\Http\Controllers\HolidayController;
 
 /*
 |--------------------------------------------------------------------------
@@ -24,19 +25,45 @@ Auth::routes();
 // Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 
 // USER DASHBOARD
+
+
+Route::post('/addHoliday', 'App\Http\Controllers\HolidayController@create');
+
 Route::get('/dashboard', function () {
-    return view('dashboard');
-})->middleware(['auth', 'user'])->name('dashboard');
+
+    $user = auth()->user();
+    
+    if($user->hasRole('admin')){
+        $pending = DB::table('holidays')
+                    ->join('users', 'holidays.user_id', '=', 'users.id')
+                    ->where('holidays.approval_status',null)
+                    ->select('users.name','holidays.*')
+                    ->get();
+        $all = DB::table('holidays')->
+                    join('users', 'holidays.user_id', '=', 'users.id')
+                    ->where('holidays.approval_status',['pending','approved'])
+                    ->select('users.name','holidays.*')
+                    ->get();
+        $data = array($pending, $all);
+        
+    }else{
+        // $data=array('user');
+        $data = DB::table('holidays')->where('user_id',$user->id)->get();
+    }
+
+
+    return view('dashboard',['data'=>$data]);
+})->name('dashboard');
 
 // MANAGER DASHBOARD
 Route::get('/manager_dashboard', function () {
     return view('manager_dashboard');
-})->middleware(['auth', 'manager'])->name('manager_dashboard');
+})->name('manager_dashboard');
 
 // ADMIN DASHBOARD
 Route::get('/admin_dashboard', function () {
     return view('admin_dashboard');
-})->middleware(['auth', 'admin'])->name('admin_dashboard');
+})->name('admin_dashboard');
 
 
 // require __DIR__.'/auth.php';
