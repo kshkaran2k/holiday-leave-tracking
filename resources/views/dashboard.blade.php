@@ -3,7 +3,7 @@
 @section('content')
 
 
-
+{{-- view for admin role --}}
 @role('admin')
 
 <div id="greet" class="container">
@@ -17,6 +17,8 @@
 <br/>
 
 <div class="container">
+
+    {{-- displaying pending records --}}
     <div id="pending-records">
         <h4>Pending Requests</h4>
         <table class="table table-striped table-hover">
@@ -32,18 +34,28 @@
                     <td>{{$val->name}}</td>
                     <td>{{$val->holiday_date}}</td>                
                     <td>
-                        <button type="button" class="btn btn-danger">Reject</button>&nbsp;
-                        <button type="button" class="btn btn-success">Approve</button>
+                        <a href="{{route('holiday.approve', $val->id)}}" class="btn btn-success">Approve</a>&nbsp;
+                        <a href="{{route('holiday.reject', $val->id)}}" class="btn btn-danger">Reject</a>&nbsp;
                     </td>                
                 </tr>
             @endforeach
         </table>
+        @if(session('status'))
+            <div class="alert alert-success col-md-4">
+                {{ session('status') }}
+            </div>
+        @elseif (session('failure'))
+            <div class="alert alert-warning col-md-4">
+                {{ session('failure') }}
+            </div>
+        @endif
     </div>
 
     <br/>
     <br/>
     <br/>
 
+    {{-- displaying non pending records  --}}
     <div id="all-records">
         <h4>Non pending records</h4>
         <table class="table table-striped table-hover">
@@ -54,11 +66,11 @@
                     <th>Status</th>
                 </tr>
             </thead>
-            @foreach($data[1] as $key => $val)
+            @foreach($data[1] as $key1 => $val1)
                 <tr>    
-                    <td>{{$val->name}}</td>
-                    <td>{{$val->holiday_date}}</td>                
-                    <td>{{$val->approval_status}}</td>                
+                    <td>{{$val1->name}}</td>
+                    <td>{{$val1->holiday_date}}</td>                
+                    <td>{{$val1->approval_status}}</td>                
                 </tr>
             @endforeach
         </table>
@@ -67,6 +79,7 @@
 
 </div>
 
+{{-- view for user role --}}
 @else
 
 <div id="greet" class="container">
@@ -96,6 +109,10 @@
                 <div class="alert alert-success col-md-4">
                     {{ session('status') }}
                 </div>
+            @elseif (session('failure'))
+                <div class="alert alert-warning col-md-4">
+                    {{ session('failure') }}
+                </div>
             @endif
         </div>
 
@@ -104,7 +121,6 @@
             @if (count($data) > 0)
             
                 <table class="table table-striped table-hover">
-                    <caption>Status: 0=Pending, 1=Approved</caption>
                     <thead class="table-dark">
                         <tr>
                             <th>Date</th>
